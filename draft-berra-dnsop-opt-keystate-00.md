@@ -39,18 +39,15 @@ informative:
 
 --- abstract
 
-This document introduces the Transaction State (TS) EDNS(0) option code
-to enable the exchange of state information between DNS entities via
-the DNS protocol. The TS option allows DNS clients and servers to include
-transaction-specific state data in both queries and responses, overcoming
-limitations of existing mechanisms like Extended DNS Errors (EDE) which
-are constrained to error responses and human-readable text. By utilizing
-the TS option, DNS entities can communicate operational states essential
-for coordination in scenarios such as synchronization of SIG(0) key
-states between child and parent server, and state synchronization between
-signers in distributed multi-signer DNSSEC configurations.
-This mechanism enhances the efficiency and reliability of DNS operations
-requiring mutual state awareness between parties.
+This document introduces the KeyState EDNS(0) option code, to enable
+the exchange of SIG(0) key state information between DNS entities via
+the DNS protocol. The KeyState option allows DNS clients and servers to
+include key state data in both queries and responses, facilitating mutual
+awareness of SIG(0) key status between child and parent zones.
+This mechanism addresses the challenges of maintaining synchronization
+of SIG(0) keys used for securing DNS UPDATE messages, thereby enhancing
+the efficiency and reliability of DNS operations that require coordinated
+key management.
 
 This document proposes such a mechanism.
 
@@ -63,7 +60,7 @@ available there.  The authors (gratefully) accept pull requests.
 
 # Introduction
 
-Yada, yada, yada.
+
 
 Knowledge of DNS NOTIFY {{!RFC1996}} and DNS Dynamic Updates
 {{!RFC2136}} and {{!RFC3007}} is assumed. DNS SIG(0) transaction
@@ -89,8 +86,8 @@ SIG(0)
 
 # Use Cases
 
-There are two specific use cases where the proposed new OPT code will
-solve current problems. In both cases private EDE info codes were
+There is a specific use case where the proposed new KeyState EDNS(0)
+will solve current problem. In that case private EDE info codes were
 initially used, but it was quickly realized that while EDE provides
 an excellent model for the type of communication needed, EDE was too
 limited in scope and another mechanism is needed.
@@ -118,30 +115,6 @@ Using the proposed OPT TransactionState the child gains the ability to
 inform the parent about its own state and in return become aware of
 the parent's state independently of a new DNS UPDATE (i.e. the OPT
 exchange may be sent via a normal DNS QUERY + response.
-
-## Synchronization of State Between Signers in Distributed Multi-Signer
- 
-The DNSSEC multi-signer architecture {{!RFC8901}} defines a set of
-processes for managing multiple DNSSEC signers, each with its own set
-of DNSSEC keys. However, the signers need to communicate to exchange
-DNSKEY records with each other (as each signer must sign the DNSKEY
-RRset including also other signer's DNSKEYs using its KSK).
-
-Multi-signer logic was initially managed via a monolithic, central
-"controller" that queried the individual signers for data, computed
-the changes needed and inserted the changes into each signer. This
-model is changing to a distributed model, where there is one
-controller next to each signer (i.e. under the control of the same
-entity, to avoid the need for an external third party that has access
-to modify contents of a zone at the signer).
-
-However, with a distributed multi-signer model, the individual
-controllers need to be able to synchronize their state as they step
-through the different "processes" defined in {{!RFC8901}}. There are
-two parties to each exchange and they need the ability to both express
-the sender's state and, in return, receive the receivers state.
-
-Again, this can not be achieved by using EDE.
 
 # Comparision to Extended DNS Errors {{!RFC8914}} 
 
