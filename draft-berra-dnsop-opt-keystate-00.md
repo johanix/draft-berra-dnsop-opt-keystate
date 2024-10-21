@@ -157,7 +157,6 @@ This document uses an Extended Mechanism for DNS (EDNS0) {{!RFC6891}}
 option to include Key State information in DNS messages. The option is 
 structured as follows: 
 
- <pre>
                                                1   1   1   1   1   1 
        0   1   2   3   4   5   6   7   8   9   0   1   2   3   4   5 
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
@@ -167,11 +166,10 @@ structured as follows:
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
  4:  |                               KEY-ID                          |
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
- 8:  | SCOPE |        UNUSED         |           KEY-STATE           |
+ 8:  |           KEY-STATE           |  EXTRA-TEXT                   /
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+ 
  10: / EXTRA-TEXT                                                    /
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-</pre>
 
 Field definition details: 
 
@@ -182,7 +180,7 @@ OPTION-CODE:
 OPTION-LENGTH: 
     2 octets / 16 bits (defined in {{!RFC6891}}) contains the length of 
     the payload (everything after OPTION-LENGTH) in octets and should 
-    be 4 plus the length of the EXTRA-TEXT field (which may be zero 
+    be 3 plus the length of the EXTRA-TEXT field (which may be zero 
     octets long). 
 
 KEY-ID:
@@ -240,39 +238,52 @@ mechanism is intended to be extensible and additional KEY-STATE codes
 can be registered in the "KeyState Codes" registry
 (see Section 7.2). The KEY-STATE code from the "KeyState" EDNS(0)
 option is used to serve as an index into the "KeyState Option
-Codes" registry with the initial valuses defined below.
+Codes" registry with the initial values defined below.
 
-0: Reserved. Must not be used.
+For KeyState signalling to be used the child is set by the child to 
+   indicate ability to interpret a KeyState OPT in the response.
 
-1: SIG(0) key is known and trusted
+## KeyStates Set By The Sender (the Child)
+
+0: Automatic bootstrap requested. 
+
+1: Manual bootstrap requested. Child requests that manual bootstrap
+   should be used (child does not want automatic bootstrap of the
+   SIG(0) public key). This KeyState MUST only be set by the child,
+   as a request to the parent UPDATE Receiver at the time of an
+   initial self-signed key upload.
+   
+2: Key inquiry. Child requests information about current KeyState for
+   specified key.
+
+3: Policy inquiry. Child requests information about current bootstrap
+   policy for parent (or its agent)
  
-2: SIG(0) key is unknown 
+## KeyStates Set By The UPDATE Receiver (the Parent or Its Agent)
 
-3: SIG(0) key is invalid (eg. key data doesn't match algorithm)
+2: SIG(0) key is known and trusted
+ 
+3: SIG(0) key is unknown 
 
-4: SIG(0) key is refused (eg. algorithm not accepted by policy)
+4: SIG(0) key is invalid (eg. key data doesn't match algorithm)
 
-5: SIG(0) key is known but validation has failed
+5: SIG(0) key is refused (eg. algorithm not accepted by policy)
 
-6: SIG(0) key is known but not trusted, automatic bootstrapping
+6: SIG(0) key is known but validation has failed
+
+7: SIG(0) key is known but not trusted, automatic bootstrapping
    ongoing
    
-7: SIG(0) key is known but not trusted, manual bootstrapping required
+8: SIG(0) key is known but not trusted, manual bootstrapping required
 
-8: Manual bootstrapping required for all SIG(0) keys to become
+9: Manual bootstrapping required for all SIG(0) keys to become
    trusted. This is a policy indication in response to a KeyState OPT
    with SCOPE=1
 
-9: Automatic bootstrapping will be attempted for all SIG(0) keys to
+10: Automatic bootstrapping will be attempted for all SIG(0) keys to
    become trusted. This is a policy indication in response to a
    KeyState OPT with SCOPE=1
    
-10: Manual bootstrap requested. Child requests that manual bootstrap
-    should be used (child does not want automatic bootstrap of the
-    SIG(0) public key). This KeyState MUST only be set by the child,
-    as a request to the parent UPDATE Receiver at the time of an
-    initial self-signed key upload. 
-
 128-255: Reserved for private use.
 
 To ensure that automatic delegation is correctly prepared and
