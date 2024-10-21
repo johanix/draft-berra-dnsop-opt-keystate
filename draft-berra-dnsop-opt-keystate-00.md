@@ -171,12 +171,11 @@ mechanism and another mechanism is needed. Hence the present proposal.
 
 ...
 
-# State EDNS0 Option Format 
+# KeyState EDNS0 Option Format 
 
 This document uses an Extended Mechanism for DNS (EDNS0) {{!RFC6891}}
-option to include "State" information in DNS messages. The option is 
+option to include Key State information in DNS messages. The option is 
 structured as follows: 
-											 
 
                                              1   1   1   1   1   1 
      0   1   2   3   4   5   6   7   8   9   0   1   2   3   4   5 
@@ -185,39 +184,60 @@ structured as follows:
    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 2: |                           OPTION-LENGTH                       |
    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-4: | STATE-CODE                                                    |
+4: |                               KEY-ID                          |
    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-6: / EXTRA-DATA ...                                                 /
+8: | SCOPE |        UNUSED         |           KEY-STATE           |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+ 
+10:/ EXTRA-TEXT                                                    /
    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+
 
 Field definition details: 
 
 OPTION-CODE: 
-    2 octets / 16 bits (defined in {{!RFC6891}}) contains the value NN for TS. 
+    2 octets / 16 bits (defined in {{!RFC6891}}) contains the value NN
+    for KeyState.
 
 OPTION-LENGTH: 
     2 octets / 16 bits (defined in {{!RFC6891}}) contains the length of 
     the payload (everything after OPTION-LENGTH) in octets and should 
-    be 2 plus the length of the EXTRA-DATA field (which may be zero 
+    be 4 plus the length of the EXTRA-TEXT field (which may be zero 
     octets long). 
 
-STATE-CODE: 
-    16 bits, which is the principal contribution of this 
-    document. This 16-bit value, encoded in network most significant 
-    bit (MSB) byte order, provides information to the recipient of the
-	current "State" of the sender. The STATE-CODE serves as an index 
-    into the "DNS OPT State Code" registry, defined and created in 
-    Section 5.2. It is specifically noted that while some state codes 
-	will be defined in this registry, others are expected to be part 
-	of the private use area. 
+KEY-ID:
+    16 bits. The KeyID of the SIG(0) key that the KeyState inquiry is
+	referring to. Note that while KeyIds are not guaranteed to be
+    unique, it is the child that generates the initial SIG(0) key pair
+    and all subsequent key pairs. Hence, it is the child's
+    responsibility to not use multiple keys with the same KeyId.
+	
+SCOPE:
+    2 bits, i.e. four possible values. In this document two of the
+    values are defined:
+	
+	SCOPE=0: Zone inquiry. The sender is requesting information about
+	the key state for the specified child zone and key from the parent
+	(or registrar) UPDATE Receiver.
+	
+	SCOPE=1: UPDATE Receiver policy inquiry. The sender is requesting
+	information about the UPDATE Receiver policy for SIG(0) child
+	keys. Specifically whether automatic bootstrapping is supported or
+	manual bootstrapping is required.
+	
+UNUSED:
+    6 bits. These six bits are not specified in this document, but may
+    be defined in a future document.
+	
+KEY-STATE:
+    8 bits. Currently defined values are listed in {key-states} below.
 
-EXTRA-DATA: 
+EXTRA-TEXT:
     a variable-length sequence of octets that may hold additional 
-    information. This information is intended for per STATE-CODE 
-    automated parsing, not human consumption. The length of the 
-    EXTRA-DATA MUST be derived from the OPTION-LENGTH field. The 
-    EXTRA-DATA field may be zero octets in length, for some values of 
-    STATE-CODE. 
+    information. This information is intended for human consumption
+	(typically a reason or additional detail), not automated
+    parsing. The length of the EXTRA-TEXT MUST be derived from the
+    OPTION-LENGTH field. The EXTRA-TEXT field may be zero octets in
+    length.
 
 The State option may be included in any outgoing message (QUERY, 
 NOTIFY, UPDATE, etc.) and in any response (SERVFAIL, NXDOMAIN, 
@@ -231,103 +251,33 @@ own corresponding State option make sense, then it is expected to do so.
 This document includes a set of initial "state" codepoints but is 
 extensible via the IANA registry defined and created in Section 5.2. 
 
-# SetState EDNS0 Option Format 
+# Defined and Reserved Values for SIG(0) Key States {#key-states}
 
-This document uses an Extended Mechanism for DNS (EDNS0) {{!RFC6891}}
-option to update "State" information in a recipient via DNS
-messages. The option is structured as follows: 
-
-                                             1   1   1   1   1   1 
-     0   1   2   3   4   5   6   7   8   9   0   1   2   3   4   5 
-   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-0: |                            OPTION-CODE                        |
-   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-2: |                           OPTION-LENGTH                       |
-   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-4: | STATE-CODE                                                    |
-   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-6: / EXTRA-DATA ...                                                 /
-   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-
-Field definition details: 
-
-OPTION-CODE: 
-    2 octets / 16 bits (defined in {{!RFC6891}}) contains the value MM
-    for SetState.
-
-OPTION-LENGTH: 
-    2 octets / 16 bits (defined in {{!RFC6891}}) contains the length of 
-    the payload (everything after OPTION-LENGTH) in octets and should 
-    be 2 plus the length of the EXTRA-DATA field (which may be zero 
-    octets long). 
-
-STATE-CODE: 
-    16 bits, which is the principal contribution of this
-    document. This 16-bit value, encoded in network most significant
-    bit (MSB) byte order, provides information from the sender of the
-	DNS message about a suggested state change in the receiver.
-    The STATE-CODE serves as an index into the "DNS OPT State Code"
-    registry, defined and created in Section 5.2. It is specifically
-	noted that while some state codes will be defined in this
-	registry, others are expected to be part of the private use area.
-
-EXTRA-DATA: 
-    a variable-length sequence of octets that may hold additional 
-    information. This information is intended for per STATE-CODE 
-    automated parsing, not human consumption. The length of the 
-    EXTRA-DATA MUST be derived from the OPTION-LENGTH field. The 
-    EXTRA-DATA field may be zero octets in length, for some values of 
-    STATE-CODE. 
-
-The SetState option may be included in any outgoing message (QUERY, 
-NOTIFY, UPDATE, etc.) that includes an OPT pseudo-RR {{!RFC6891}}. 
-It must not be present in a response message.
-
-The SetState option may always be ignored by the recipient. However, if 
-the recipient does understand the SetState option it is expected to
-either make the suggested state change or not make it. Regardless of
-which, it is expected to provide an updated State option in the
-response to the original sender.
-
-This document includes a set of initial "state" codepoints but is 
-extensible via the IANA registry defined and created in Section 5.2. 
-
-# Defined States
-
-This document defines four initial STATE-CODEs. The mechanism is
-intended to be extensible and additional STATE-CODEs can be
-registered in the "State Option State-Codes" registry
-({state-code-registry}). The STATE-CODE from the "State" EDNS(0)
-option is used to serve as an index into the "State Option
-State-Codes" registry with the initial valuses defined below.
-
-## State Option State-Code 1 - SIG(0) Key State Inquiry
-
-For State-Code = 1 the EXTRA-DATA is defined as follows:
-
-EXTRA-DATA is four octets: 2 octets in network most significant bit
-(MSB) byte order containing the KeyId of the SIG(0) key and two octets
-(in MSB byte order) of Key State.
-
-                                             1   1   1   1   1   1
-    0    1   2   3   4   5   6   7   8   9   0   1   2   3   4   5
-   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+ 
-0: |                         KEY ID                                |
-   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-2: |                        KEY STATE                              |
-   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-
-
-Defined values for SIG(0) Key State:
+This document defines a number of initial KEY-STATE codes The
+mechanism is intended to be extensible and additional KEY-STATE codes
+can be registered in the "KeyState Option Codes" registry
+({keystate-code-registry}). The KEY-STATE code from the "KeyState" EDNS(0)
+option is used to serve as an index into the "KeyState Option
+Codes" registry with the initial valuses defined below.
 
 0: Reserved. Must not be used.
+
 1: SIG(0) key is unknown
+
 2: SIG(0) key is invalid (eg. key data doesn't match algorithm)
+
 3: SIG(0) key is refused (eg. algorithm not accepted)
+
 4: SIG(0) key is known but validation has failed
-5: SIG(0) key is known but not trusted, automatic bootstrapping ongoing
+
+5: SIG(0) key is known but not trusted, automatic bootstrapping
+ongoing
+
 6: SIG(0) key is known but not trusted, manual bootstrapping required
+
 7: SIG(0) key is known and trusted
+
+128-255: Reserved for private use.
 
 To ensure that automatic delegation is correctly prepared and  
 bootstrapped, the child (or an agent for the child) sends a DNS QUERY
