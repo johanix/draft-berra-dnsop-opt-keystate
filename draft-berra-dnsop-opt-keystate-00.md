@@ -338,30 +338,60 @@ the SIG(0) key to inquire state for in the EXTRA-DATA.
 The response should contain both the KeyId and the Key State in the
 EXTRA-DATA, encoded as described above.
 
-
-# Security Considerations.
-
-...
+# Security Considerations
+Key state signals in OPT queries and answers are unauthenticated unless the
+transaction carrying the state signal is secured via mechanisms such as
+{{!RFC2845}}, {{!RFC2931}}, {{!RFC8094}} or {{!RFC8484}}. Unauthenticated
+information MUST NOT be trusted as the state signals influence the DNS
+protocol processing. For instance, an attacker might cause a denial-of-service
+by forging a response claiming that the victim's key is invalid, thereby
+halting the delegation synchronization procedure.
 
 # IANA Considerations.
+## New KeyState and SetKeyState EDNS Options
+This document defines a new EDNS(0) option, entitled "KeyState",
+assigned a value of TBD "DNS EDNS0 Option Codes (OPT)" registry
+[to be removed upon publication:
+[https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-
+parameters-11]
 
-## A New "State" EDNS Option
++-------+--------------------+----------+--------------------+
+| Value | Name               | Status   | Reference          |
++-------+--------------------+----------+--------------------+
+| TBD   | KeyState           | Standard | [ This document ]  |
++-------+--------------------+----------+--------------------+
 
-IANA is requested to assign a value to for the "State"
-EDNS(0) Option in the "DNS EDNS0 Option Codes (OPT) registry.
+## A New Registry for EDNS Option KeyState State Codes
+The KeyState option also defines a 16-bit state field, for which IANA is
+requested to create and mainain a new registry entitled "KeyState Codes", used
+by the KeyState option. Initial values for the "KeyState Codes" registry
+are given below; future assignments in  in the 8-127 range are to be made
+through Specification Required review [BCP26].
 
-# A New Registry for State Option State-Codes {#state-code-registry}
++-----------+---------------------------------------------+-------------------+
+| KEY STATE | Mnemonic                                    | Reference         |
++-----------+---------------------------------------------+-------------------+
+| 0         | UNUSED                                      | [ This document ] |
++-----------+---------------------------------------------+-------------------+
+| 1         | KEY_UNKNOWN                                 | [ This document ] |
++-----------+---------------------------------------------+-------------------+
+| 2         | KEY_INVALID                                 | [ This document ] |
++-----------+---------------------------------------------+-------------------+
+| 3         | KEY_REFUSED                                 | [ This document ] |
++-----------+---------------------------------------------+-------------------+
+| 4         | VALIDATION_FAIL                             | [ This document ] |
++-----------+---------------------------------------------+-------------------+
+| 5         | AUTO_BOOTSTRAP_ONGOING                      | [ This document ] |
++-----------+---------------------------------------------+-------------------+
+| 6         | MANUAL_BOOTSTRAP_REQUIRED                   | [ This document ] |
++-----------+---------------------------------------------+-------------------+
+| 7         | KEY_TRUSTED                                 | [ This document ] |
++-----------+---------------------------------------------+-------------------+
+| 8-127     | Unassigned                                  | [ This document ] |
++-----------+---------------------------------------------+-------------------+
+| 128-65535 | Private use                                 | [ This document ] |
++-----------+---------------------------------------------+-------------------+
 
-IANA is requested to create and maintain a new registry called
-"State Option State-Codes" on the "Domain Name System (DNS)
-Parameters" web page as follows:
-
-Reference
-: (this document)
-
-| Range  | Purpose               | Reference       |
-| ------ | ---------| --------------------- | --------------- |
-| 0      | Reserved | Delegation management | (this document) |
 
 -------
 
