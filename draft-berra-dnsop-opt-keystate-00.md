@@ -39,7 +39,7 @@ informative:
 
 --- abstract
 
-This document introduces the KeyState EDNS(0) option code, to enable
+This document introduces the KeyState EDNS(0) option code, witch enables
 the exchange of SIG(0) key state information between DNS entities via
 the DNS protocol. The KeyState option allows DNS clients and servers to
 include key state data in both queries and responses, facilitating mutual
@@ -59,7 +59,33 @@ available there.  The authors (gratefully) accept pull requests.
 --- middle
 
 # Introduction
+SIG(0) {{!RFC2931}} provides a mechanism for authenticating DNS messages
+using asymmetric cryptography, where the sender signs messages with a
+private key, and the receiver verifies them using the corresponding
+public key.
 
+In draft-johani-dnsop-delegation-mgmt-via-ddns the child operator
+signs DNS UPDATE messages sent to the parent receiver using a SIG(0)
+private key that the parent receiver must have the public key
+for. While there is a mechanism for both uploading and rolling the
+public SIG(0) key there is still a risk of the child operator and the
+parent receiver getting out of sync.
+
+This will be noticed by the child if a DNS UPDATE is refused, and the
+parent receiver does have the opportunity and abiulity to provide more
+details of the refusal via an EDE opcode {{!RFC8914}}, but at that point
+it is too late to immediately get back in sync again and as a result
+the needed delegation synchronization that triggered the DNS UPDATE
+will be delayed.
+
+EDE info codes were initially used, but it was quickly realized that
+while EDE provides an excellent model for the type of communication
+needed, EDE was too limited in scope and another mechanism is needed.
+
+Using the proposed OPT KeyState the child gains the ability to
+inform the parent about its own state and in return become aware of
+the parent's state independently of a new DNS UPDATE (i.e. the OPT
+exchange may be sent via a normal DNS QUERY + response.
 
 
 Knowledge of DNS NOTIFY {{!RFC1996}} and DNS Dynamic Updates
@@ -82,39 +108,6 @@ SIG(0)
 : An assymmetric signing algorithm that allows the recipient to only 
   need to know the public key to verify a signature created by the 
   senders private key. 
-
-
-# Use Cases
-
-There is a specific use case where the proposed new KeyState EDNS(0)
-will solve current problem. In that case private EDE info codes were
-initially used, but it was quickly realized that while EDE provides
-an excellent model for the type of communication needed, EDE was too
-limited in scope and another mechanism is needed.
-
-The proposed mechanism re-uses the same format as EDE, while
-explicitly removing some of the scope limitation.
-
-## Synchronization of SIG(0) Key State Between Child and Parent
- 
-In draft-johani-dnsop-delegation-mgmt-via-ddns the child operator
-signs DNS UPDATE messages sent to the parent receiver using a SIG(0)
-private key that the parent receiver must have the public key
-for. While there is a mechanism for both uploading and rolling the
-public SIG(0) key there is still a risk of the child operator and the
-parent receiver getting out of sync.
-
-This will be noticed by the child if a DNS UPDATE is refused, and the
-parent receiver does have the opportunity and abiulity to provide more
-details of the refusal via an EDE opcode {{!RFC8914}}, but at that point
-it is too late to immediately get back in sync again and as a result
-the needed delegation synchronization that triggered the DNS UPDATE
-will be delayed.
-
-Using the proposed OPT TransactionState the child gains the ability to
-inform the parent about its own state and in return become aware of
-the parent's state independently of a new DNS UPDATE (i.e. the OPT
-exchange may be sent via a normal DNS QUERY + response.
 
 # Comparision to Extended DNS Errors {{!RFC8914}} 
 
