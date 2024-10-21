@@ -206,76 +206,85 @@ OPTION-LENGTH:
 
 KEY-ID:
     16 bits. The KeyID of the SIG(0) key that the KeyState inquiry is
-	referring to. Note that while KeyIds are not guaranteed to be
+    referring to. Note that while KeyIds are not guaranteed to be
     unique, it is the child that generates the initial SIG(0) key pair
     and all subsequent key pairs. Hence, it is the child's
     responsibility to not use multiple keys with the same KeyId.
-	
+
 SCOPE:
     2 bits, i.e. four possible values. In this document two of the
     values are defined:
-	
-	SCOPE=0: Zone inquiry. The sender is requesting information about
-	the key state for the specified child zone and key from the parent
-	(or registrar) UPDATE Receiver.
-	
-	SCOPE=1: UPDATE Receiver policy inquiry. The sender is requesting
-	information about the UPDATE Receiver policy for SIG(0) child
-	keys. Specifically whether automatic bootstrapping is supported or
-	manual bootstrapping is required.
-	
+
+    SCOPE=0: Zone inquiry. The sender is requesting information about
+    the key state for the specified child zone and key from the parent
+    (or registrar) UPDATE Receiver.
+
+    SCOPE=1: UPDATE Receiver policy inquiry. The sender is requesting
+    information about the UPDATE Receiver policy for SIG(0) child
+    keys. Specifically whether automatic bootstrapping is supported or
+    manual bootstrapping is required.
+
 UNUSED:
     6 bits. These six bits are not specified in this document, but may
     be defined in a future document.
-	
+
 KEY-STATE:
     8 bits. Currently defined values are listed in {key-states} below.
 
 EXTRA-TEXT:
     a variable-length sequence of octets that may hold additional 
     information. This information is intended for human consumption
-	(typically a reason or additional detail), not automated
+    (typically a reason or additional detail), not automated
     parsing. The length of the EXTRA-TEXT MUST be derived from the
     OPTION-LENGTH field. The EXTRA-TEXT field may be zero octets in
     length.
 
-The State option may be included in any outgoing message (QUERY, 
+The KeyState option may be included in any outgoing message (QUERY, 
 NOTIFY, UPDATE, etc.) and in any response (SERVFAIL, NXDOMAIN, 
 REFUSED, even NOERROR, etc.) to a query that includes an OPT 
 pseudo-RR {{!RFC6891}}. 
 
-The State option may always be ignored by the recipient. However, if 
-the recipient does understand the State option and responding with its 
-own corresponding State option make sense, then it is expected to do so. 
+The KeyState option may always be ignored by the recipient. However, if 
+the recipient does understand the KeyState option and responding with its 
+own corresponding KeyState for the specified key make sense, then it
+is expected to do so.
 
-This document includes a set of initial "state" codepoints but is 
-extensible via the IANA registry defined and created in Section 5.2. 
+This document includes a set of initial "key state" codepoints but is 
+extensible via the IANA registry defined and created in Section {{keystate-code-registry}}. 
 
-# Defined and Reserved Values for SIG(0) Key States {#key-states}
+# Defined and Reserved Values for SIG(0) Key States {: #key-states}
 
-This document defines a number of initial KEY-STATE codes The
+This document defines a number of initial KEY-STATE codes. The
 mechanism is intended to be extensible and additional KEY-STATE codes
-can be registered in the "KeyState Option Codes" registry
-({keystate-code-registry}). The KEY-STATE code from the "KeyState" EDNS(0)
+can be registered in the "KeyState Codes" registry
+({{keystate-code-registry}}). The KEY-STATE code from the "KeyState" EDNS(0)
 option is used to serve as an index into the "KeyState Option
 Codes" registry with the initial valuses defined below.
 
 0: Reserved. Must not be used.
 
-1: SIG(0) key is unknown
+1: SIG(0) key is known and trusted
+ 
+2: SIG(0) key is unknown 
 
-2: SIG(0) key is invalid (eg. key data doesn't match algorithm)
+3: SIG(0) key is invalid (eg. key data doesn't match algorithm)
 
-3: SIG(0) key is refused (eg. algorithm not accepted)
+4: SIG(0) key is refused (eg. algorithm not accepted by policy)
 
-4: SIG(0) key is known but validation has failed
+5: SIG(0) key is known but validation has failed
 
-5: SIG(0) key is known but not trusted, automatic bootstrapping
-ongoing
+6: SIG(0) key is known but not trusted, automatic bootstrapping
+   ongoing
+   
+7: SIG(0) key is known but not trusted, manual bootstrapping required
 
-6: SIG(0) key is known but not trusted, manual bootstrapping required
+8: Manual bootstrapping required for all SIG(0) keys to become trusted
 
-7: SIG(0) key is known and trusted
+9: Automatic bootstrapping will be attempted for all SIG(0) keys to
+   become trusted
+   
+10: Child requests that manual bootstrap should be used (child does
+    not want automatic bootstrap of the SIG(0) public key).
 
 128-255: Reserved for private use.
 
@@ -289,6 +298,7 @@ The response should contain both the KeyId and the Key State in the
 EXTRA-DATA, encoded as described above.
 
 # Security Considerations
+
 Key state signals in OPT queries and answers are unauthenticated unless the
 transaction carrying the state signal is secured via mechanisms such as
 {{!RFC2845}}, {{!RFC2931}}, {{!RFC8094}} or {{!RFC8484}}. Unauthenticated
@@ -311,25 +321,29 @@ could allow an attacker to disrupt the synchronization. Secure transport
 alternatives exist in {{!RFC8094}} and {{!RFC8484}}.
 
 # IANA Considerations.
-## New KeyState EDNS Options
+
+## New KeyState EDNS Option
+
 This document defines a new EDNS(0) option, entitled "KeyState",
 assigned a value of TBD "DNS EDNS0 Option Codes (OPT)" registry
-(to be removed upon publication):
-[https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-
-parameters-11]
 
-+-------+--------------------+----------+--------------------+
-| Value | Name               | Status   | Reference          |
-+-------+--------------------+----------+--------------------+
-| TBD   | KeyState           | Standard | ( This document )  |
-+-------+--------------------+----------+--------------------+
+TO BE REMOVED UPON PUBLICATION: 
+[https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-11](foo)
 
-## A New Registry for EDNS Option KeyState State Codes
-The KeyState option also defines a 8-bit state field, for which IANA is
-requested to create and maintain a new registry entitled "KeyState Codes", used
+   +-------+--------------------+----------+----------------------+
+   | Value | Name               | Status   | Reference            |
+   +-------+--------------------+----------+----------------------+
+   | TBD   | KeyState           | Standard | ( This document )    |
+   +-------+--------------------+----------+----------------------+
+
+## A New Registry for EDNS Option KeyState State Codes {: #keystate-code-registry}
+
+The KeyState option also defines a 16-bit state field, for which IANA is
+requested to create and mainain a new registry entitled "KeyState Codes", used
 by the KeyState option. Initial values for the "KeyState Codes" registry
-are given below; future assignments in  in the 11-127 range are to be made
-through Specification Required review [BCP26].
+are given below; future assignments in  in the 8-127 range are to be made
+through Specification Required review {{?BCP26}}.
+
 
 +-----------+---------------------------------------------+-------------------+
 | KEY STATE | Mnemonic                                    | Reference         |
@@ -376,6 +390,6 @@ through Specification Required review [BCP26].
 
 # Change History (to be removed before publication)
 
-* draft-berra-dnsop-opt-transaction-state-00
+* draft-berra-dnsop-opt-keystate-00
 
 > Initial public draft.
