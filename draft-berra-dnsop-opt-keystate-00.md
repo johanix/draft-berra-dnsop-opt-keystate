@@ -297,6 +297,19 @@ protocol processing. For instance, an attacker might cause a denial-of-service
 by forging a response claiming that the victim's key is invalid, thereby
 halting the delegation synchronization procedure.
 
+Moreover, it is assumed that the child has some means of validating messages
+from the parent during the initial phase when the child initializes the SIG(0)
+key synchronization. Otherwise, an attacker could prevent a child from
+initializing the synchronization by spoofing responses that refuses the key
+that the child is trying to upload. For that reason, it is expected that the
+parent has already published a public key that the child can use for this
+purpose. It could also possible to establish this trust out-of-band, such as
+via a physical meeting.
+
+Lastly, SIG(0) transaction signatures are vulnerable to replay attacks, which
+could allow an attacker to disrupt the synchronization. Secure transport
+alternatives exist in {{!RFC8094}} and {{!RFC8484}}.
+
 # IANA Considerations.
 ## New KeyState EDNS Options
 This document defines a new EDNS(0) option, entitled "KeyState",
