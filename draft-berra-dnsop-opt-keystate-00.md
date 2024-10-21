@@ -297,49 +297,68 @@ protocol processing. For instance, an attacker might cause a denial-of-service
 by forging a response claiming that the victim's key is invalid, thereby
 halting the delegation synchronization procedure.
 
+Moreover, it is assumed that the child has some means of validating messages
+from the parent during the initial phase when the child initializes the SIG(0)
+key synchronization. Otherwise, an attacker could prevent a child from
+initializing the synchronization by spoofing responses that refuses the key
+that the child is trying to upload. For that reason, it is expected that the
+parent has already published a public key that the child can use for this
+purpose. It could also possible to establish this trust out-of-band, such as
+via a physical meeting.
+
+Lastly, SIG(0) transaction signatures are vulnerable to replay attacks, which
+could allow an attacker to disrupt the synchronization. Secure transport
+alternatives exist in {{!RFC8094}} and {{!RFC8484}}.
+
 # IANA Considerations.
-## New KeyState and SetKeyState EDNS Options
+## New KeyState EDNS Options
 This document defines a new EDNS(0) option, entitled "KeyState",
 assigned a value of TBD "DNS EDNS0 Option Codes (OPT)" registry
-[to be removed upon publication:
+(to be removed upon publication):
 [https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-
 parameters-11]
 
 +-------+--------------------+----------+--------------------+
 | Value | Name               | Status   | Reference          |
 +-------+--------------------+----------+--------------------+
-| TBD   | KeyState           | Standard | [ This document ]  |
+| TBD   | KeyState           | Standard | ( This document )  |
 +-------+--------------------+----------+--------------------+
 
 ## A New Registry for EDNS Option KeyState State Codes
-The KeyState option also defines a 16-bit state field, for which IANA is
-requested to create and mainain a new registry entitled "KeyState Codes", used
+The KeyState option also defines a 8-bit state field, for which IANA is
+requested to create and maintain a new registry entitled "KeyState Codes", used
 by the KeyState option. Initial values for the "KeyState Codes" registry
-are given below; future assignments in  in the 8-127 range are to be made
+are given below; future assignments in  in the 11-127 range are to be made
 through Specification Required review [BCP26].
 
 +-----------+---------------------------------------------+-------------------+
 | KEY STATE | Mnemonic                                    | Reference         |
 +-----------+---------------------------------------------+-------------------+
-| 0         | UNUSED                                      | [ This document ] |
+| 0         | UNUSED                                      | ( This document ) |
 +-----------+---------------------------------------------+-------------------+
-| 1         | KEY_UNKNOWN                                 | [ This document ] |
+| 1         | KEY_TRUSTED                                 | ( This document ) |
 +-----------+---------------------------------------------+-------------------+
-| 2         | KEY_INVALID                                 | [ This document ] |
+| 2         | KEY_UNKNOWN                                 | ( This document ) |
 +-----------+---------------------------------------------+-------------------+
-| 3         | KEY_REFUSED                                 | [ This document ] |
+| 3         | KEY_INVALID                                 | ( This document ) |
 +-----------+---------------------------------------------+-------------------+
-| 4         | VALIDATION_FAIL                             | [ This document ] |
+| 4         | KEY_REFUSED                                 | ( This document ) |
 +-----------+---------------------------------------------+-------------------+
-| 5         | AUTO_BOOTSTRAP_ONGOING                      | [ This document ] |
+| 5         | VALIDATION_FAIL                             | ( This document ) |
 +-----------+---------------------------------------------+-------------------+
-| 6         | MANUAL_BOOTSTRAP_REQUIRED                   | [ This document ] |
+| 6         | AUTO_BOOTSTRAP_ONGOING                      | ( This document ) |
 +-----------+---------------------------------------------+-------------------+
-| 7         | KEY_TRUSTED                                 | [ This document ] |
+| 7         | MANUAL_BOOTSTRAP_REQUIRED                   | ( This document ) |
 +-----------+---------------------------------------------+-------------------+
-| 8-127     | Unassigned                                  | [ This document ] |
+| 8         | MANUAL_BOOTSTRAP_SIG0                       | ( This document ) |
 +-----------+---------------------------------------------+-------------------+
-| 128-65535 | Private use                                 | [ This document ] |
+| 9         | ATTEMPT_AUTO_BOOTSTRAP                      | ( This document ) |
++-----------+---------------------------------------------+-------------------+
+| 10        | REQUST_MANUAL_BOOTSTRAP                     | ( This document ) |
++-----------+---------------------------------------------+-------------------+
+| 11-127    | Unassigned                                  | ( This document ) |
++-----------+---------------------------------------------+-------------------+
+| 128-255   | Private use                                 | ( This document ) |
 +-----------+---------------------------------------------+-------------------+
 
 
