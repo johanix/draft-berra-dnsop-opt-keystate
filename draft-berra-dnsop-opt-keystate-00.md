@@ -250,14 +250,14 @@ own corresponding KeyState for the specified key make sense, then it
 is expected to do so.
 
 This document includes a set of initial "key state" codepoints but is 
-extensible via the IANA registry defined and created in Section {{key-state-registry}}. 
+extensible via the IANA registry defined and created in Section {{keystate-code-registry}}. 
 
 # Defined and Reserved Values for SIG(0) Key States {: #key-states}
 
-This document defines a number of initial KEY-STATE codes The
+This document defines a number of initial KEY-STATE codes. The
 mechanism is intended to be extensible and additional KEY-STATE codes
-can be registered in the "KeyState Option Codes" registry
-({keystate-code-registry}). The KEY-STATE code from the "KeyState" EDNS(0)
+can be registered in the "KeyState Codes" registry
+({{keystate-code-registry}}). The KEY-STATE code from the "KeyState" EDNS(0)
 option is used to serve as an index into the "KeyState Option
 Codes" registry with the initial valuses defined below.
 
@@ -313,44 +313,46 @@ halting the delegation synchronization procedure.
 
 This document defines a new EDNS(0) option, entitled "KeyState",
 assigned a value of TBD "DNS EDNS0 Option Codes (OPT)" registry
-[to be removed upon publication: [https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-11]]
 
-+-------+--------------------+----------+--------------------+
-| Value | Name               | Status   | Reference          |
-+-------+--------------------+----------+--------------------+
-| TBD   | KeyState           | Standard | [ This document ]  |
-+-------+--------------------+----------+--------------------+
+TO BE REMOVED UPON PUBLICATION: 
+[https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-11](foo)
 
-## A New Registry for EDNS Option KeyState State Codes {: #key-state-registry}
+   +-------+--------------------+----------+----------------------+
+   | Value | Name               | Status   | Reference            |
+   +-------+--------------------+----------+----------------------+
+   | TBD   | KeyState           | Standard | (This document)      |
+   +-------+--------------------+----------+----------------------+
+
+## A New Registry for EDNS Option KeyState State Codes {: #keystate-code-registry}
 
 The KeyState option also defines a 16-bit state field, for which IANA is
 requested to create and mainain a new registry entitled "KeyState Codes", used
 by the KeyState option. Initial values for the "KeyState Codes" registry
 are given below; future assignments in  in the 8-127 range are to be made
-through Specification Required review [BCP26].
+through Specification Required review {{?BCP26}}.
 
 +-----------+---------------------------------------------+-------------------+
 | KEY STATE | Mnemonic                                    | Reference         |
 +-----------+---------------------------------------------+-------------------+
-| 0         | UNUSED                                      | [ This document ] |
+| 0         | UNUSED                                      | (This document)   |
 +-----------+---------------------------------------------+-------------------+
-| 1         | KEY_UNKNOWN                                 | [ This document ] |
+| 1         | KEY_UNKNOWN                                 | (This document)   |
 +-----------+---------------------------------------------+-------------------+
-| 2         | KEY_INVALID                                 | [ This document ] |
+| 2         | KEY_INVALID                                 | (This document)   |
 +-----------+---------------------------------------------+-------------------+
-| 3         | KEY_REFUSED                                 | [ This document ] |
+| 3         | KEY_REFUSED                                 | (This document)   |
 +-----------+---------------------------------------------+-------------------+
-| 4         | VALIDATION_FAIL                             | [ This document ] |
+| 4         | VALIDATION_FAIL                             | (This document)   |
 +-----------+---------------------------------------------+-------------------+
-| 5         | AUTO_BOOTSTRAP_ONGOING                      | [ This document ] |
+| 5         | AUTO_BOOTSTRAP_ONGOING                      | (This document)   |
 +-----------+---------------------------------------------+-------------------+
-| 6         | MANUAL_BOOTSTRAP_REQUIRED                   | [ This document ] |
+| 6         | MANUAL_BOOTSTRAP_REQUIRED                   | (This document)   |
 +-----------+---------------------------------------------+-------------------+
-| 7         | KEY_TRUSTED                                 | [ This document ] |
+| 7         | KEY_TRUSTED                                 | (This document)   |
 +-----------+---------------------------------------------+-------------------+
-| 8-127     | Unassigned                                  | [ This document ] |
+| 8-127     | Unassigned                                  | (This document)   |
 +-----------+---------------------------------------------+-------------------+
-| 128-65535 | Private use                                 | [ This document ] |
+| 128-65535 | Private use                                 | (This document)   |
 +-----------+---------------------------------------------+-------------------+
 
 
