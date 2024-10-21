@@ -190,23 +190,6 @@ KEY-ID:
     and all subsequent key pairs. Hence, it is the child's
     responsibility to not use multiple keys with the same KeyId.
 
-SCOPE:
-    2 bits, i.e. four possible values. In this document only two of
-    the values are defined:
-
-    SCOPE=0: Zone inquiry. The sender is requesting information about
-    the key state for the specified child zone and key from the parent
-    (or registrar) UPDATE Receiver.
-
-    SCOPE=1: UPDATE Receiver policy inquiry. The sender is requesting
-    information about the UPDATE Receiver policy for SIG(0) child
-    keys. Specifically whether automatic bootstrapping is supported or
-    manual bootstrapping is required.
-
-UNUSED:
-    6 bits. These six bits are not specified in this document, but may
-    be defined in a future document.
-
 KEY-STATE:
     8 bits. Currently defined values are listed in Section 5 below.
 
