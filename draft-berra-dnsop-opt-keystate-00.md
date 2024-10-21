@@ -60,7 +60,7 @@ available there.  The authors (gratefully) accept pull requests.
 
 # Introduction
 
-Yada, yada, yada.
+
 
 Knowledge of DNS NOTIFY {{!RFC1996}} and DNS Dynamic Updates
 {{!RFC2136}} and {{!RFC3007}} is assumed. DNS SIG(0) transaction
@@ -86,8 +86,8 @@ SIG(0)
 
 # Use Cases
 
-There are two specific use cases where the proposed new OPT code will
-solve current problems. In both cases private EDE info codes were
+There is a specific use case where the proposed new KeyState EDNS(0)
+will solve current problem. In that case private EDE info codes were
 initially used, but it was quickly realized that while EDE provides
 an excellent model for the type of communication needed, EDE was too
 limited in scope and another mechanism is needed.
