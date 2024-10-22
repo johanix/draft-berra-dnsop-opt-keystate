@@ -157,6 +157,7 @@ This document uses an Extended Mechanism for DNS (EDNS0) {{!RFC6891}}
 option to include Key State information in DNS messages. The option is 
 structured as follows: 
 
+~~~
                                                1   1   1   1   1   1 
        0   1   2   3   4   5   6   7   8   9   0   1   2   3   4   5 
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
@@ -170,11 +171,12 @@ structured as follows:
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+ 
  10: / EXTRA-TEXT                                                    /
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+~~~
 
 Field definition details: 
 
 OPTION-CODE: 
-    2 octets / 16 bits (defined in {{!RFC6891}}) contains the value NN
+    2 octets / 16 bits (defined in {{!RFC6891}}) contains the value TBD
     for KeyState.
 
 OPTION-LENGTH: 
@@ -191,7 +193,7 @@ KEY-ID:
     responsibility to not use multiple keys with the same KeyId.
 
 KEY-STATE:
-    8 bits. Currently defined values are listed in Section 5 below.
+    8 bits. Currently defined values are listed in Section 6 below.
 
 EXTRA-TEXT:
     a variable-length sequence of octets that may hold additional 
@@ -201,10 +203,19 @@ EXTRA-TEXT:
     OPTION-LENGTH field. The EXTRA-TEXT field may be zero octets in
     length.
 
-The KeyState option may be included in any outgoing message (QUERY, 
-NOTIFY, UPDATE, etc.) and in any response (SERVFAIL, NXDOMAIN, 
-REFUSED, even NOERROR, etc.) to a query that includes an OPT 
-pseudo-RR {{!RFC6891}}. 
+# Use of the KeyState Option
+
+The KeyState option may be included in outgoing message of type QUERY
+or UPDATE from the child to the UPDATE Receiver. The KeyState option
+MUST be present in such messages if the child supports the KeyState
+option.
+
+The UPDATE Receiver MUST only include a KeyState option when
+responding to a DNS message that contained a KeyState option. I.e. the
+UPDATE Receiver must never assume that the child is able to interpret
+KeyState options. A KeyState option MAY be included in any type of
+response (SERVFAIL, NXDOMAIN, REFUSED, even NOERROR, etc.) to a query
+that includes an KeyState Option.
 
 The KeyState option may always be ignored by the recipient. However, if 
 the recipient does understand the KeyState option and responding with its 
@@ -212,14 +223,14 @@ own corresponding KeyState for the specified key make sense, then it
 is expected to do so.
 
 This document includes a set of initial "key state" codepoints but is
-extensible via the IANA registry defined and created in Section 7.2.
+extensible via the IANA registry defined and created in Section 8.2.
 
 # Defined and Reserved Values for SIG(0) Key States
 
 This document defines a number of initial KEY-STATE codes. The
 mechanism is intended to be extensible and additional KEY-STATE codes
 can be registered in the "KeyState Codes" registry
-(see Section 7.2). The KEY-STATE code from the "KeyState" EDNS(0)
+(see Section 8.2). The KEY-STATE code from the "KeyState" EDNS(0)
 option is used to serve as an index into the "KeyState Option
 Codes" registry with the initial values defined below.
 
@@ -228,44 +239,44 @@ For KeyState signalling to be used the child is set by the child to
 
 ## KeyStates Set By The Sender (the Child)
 
-0: Automatic bootstrap requested. 
+0: Automatic bootstrap requested. This assumes that the child SIG(0)
+   public key is already published as a KEY record that the child
+   apex.
 
 1: Manual bootstrap requested. Child requests that manual bootstrap
    should be used (child does not want automatic bootstrap of the
-   SIG(0) public key). This KeyState MUST only be set by the child,
-   as a request to the parent UPDATE Receiver at the time of an
-   initial self-signed key upload.
+   SIG(0) public key).
    
 2: Key inquiry. Child requests information about current KeyState for
    specified key.
 
 3: Policy inquiry. Child requests information about current bootstrap
-   policy for parent (or its agent)
+   policy for parent (or its agent).
  
 ## KeyStates Set By The UPDATE Receiver (the Parent or Its Agent)
 
-2: SIG(0) key is known and trusted
+4: SIG(0) key is known and trusted.
  
-3: SIG(0) key is unknown 
+5: SIG(0) key is unknown.
 
-4: SIG(0) key is invalid (eg. key data doesn't match algorithm)
+6: SIG(0) key is invalid (eg. key data doesn't match algorithm).
 
-5: SIG(0) key is refused (eg. algorithm not accepted by policy)
+7: SIG(0) key is refused (eg. algorithm not accepted by policy).
 
-6: SIG(0) key is known but validation has failed
+8: SIG(0) key is known but validation has failed.
 
-7: SIG(0) key is known but not trusted, automatic bootstrapping
-   ongoing
+9: SIG(0) key is known but not trusted, automatic bootstrapping
+   ongoing.
    
-8: SIG(0) key is known but not trusted, manual bootstrapping required
+10: SIG(0) key is known but not trusted, manual bootstrapping required.
 
-9: Manual bootstrapping required for all SIG(0) keys to become
-   trusted. This is a policy indication in response to a KeyState OPT
-   with SCOPE=1
+11: Manual bootstrapping required for all SIG(0) keys to become
+    trusted. This is a policy indication in response to a KeyState=3
+    inquiry from Sender.
 
-10: Automatic bootstrapping will be attempted for all SIG(0) keys to
-   become trusted. This is a policy indication in response to a
-   KeyState OPT with SCOPE=1
+12: Automatic bootstrapping will be attempted for all SIG(0) keys to
+    become trusted. This is a policy indication in response to a
+    KeyState=3 inquiry from Sender.
    
 128-255: Reserved for private use.
 
@@ -309,14 +320,11 @@ alternatives exist in {{!RFC8094}} and {{!RFC8484}}.
 This document defines a new EDNS(0) option, entitled "KeyState",
 assigned a value of TBD "DNS EDNS0 Option Codes (OPT)" registry
 
-TO BE REMOVED UPON PUBLICATION: 
-[https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-11](foo)
 
-   +-------+--------------------+----------+--------------------+
    | Value | Name               | Status   | Reference          |
-   +-------+--------------------+----------+--------------------+
+   |-------|--------------------|----------|--------------------|
    | TBD   | KeyState           | Standard | (This document)    |
-   +-------+--------------------+----------+--------------------+
+
 
 ## A New Registry for EDNS Option KeyState State Codes
 
@@ -326,45 +334,36 @@ by the KeyState option. Initial values for the "KeyState Codes" registry
 are given below; future assignments in  in the 8-127 range are to be made
 through Specification Required review {{?BCP26}}.
 
-+-----------+------------------------------------+-----------------+
 | KEY STATE | Mnemonic                           | Reference       |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 0         | UNUSED                             | (This document) |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 1         | KEY_TRUSTED                        | (This document) |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 2         | KEY_UNKNOWN                        | (This document) |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 3         | KEY_INVALID                        | (This document) |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 4         | KEY_REFUSED                        | (This document) |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 5         | VALIDATION_FAIL                    | (This document) |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 6         | AUTO_BOOTSTRAP_ONGOING             | (This document) |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 7         | MANUAL_BOOTSTRAP_REQUIRED          | (This document) |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 8         | MANUAL_BOOTSTRAP_SIG0              | (This document) |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 9         | ATTEMPT_AUTO_BOOTSTRAP             | (This document) |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 10        | REQUST_MANUAL_BOOTSTRAP            | (This document) |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 11-127    | Unassigned                         | (This document) |
-+-----------+------------------------------------+-----------------+
+|-----------|------------------------------------|-----------------|
 | 128-255   | Private use                        | (This document) |
-+-----------+------------------------------------+-----------------+
+
 
 -------
-
-# References
-
-## Normative References
-
-# Acknowledgements.
-
-...
 
 --- back
 
