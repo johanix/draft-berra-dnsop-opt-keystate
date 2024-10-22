@@ -328,37 +328,41 @@ assigned a value of TBD "DNS EDNS0 Option Codes (OPT)" registry
 
 ## A New Registry for EDNS Option KeyState State Codes
 
-The KeyState option also defines a 16-bit state field, for which IANA is
+The KeyState option also defines a 8-bit state field, for which IANA is
 requested to create and mainain a new registry entitled "KeyState Codes", used
 by the KeyState option. Initial values for the "KeyState Codes" registry
-are given below; future assignments in  in the 8-127 range are to be made
+are given below; future assignments in  in the 13-127 range are to be made
 through Specification Required review {{?BCP26}}.
 
 | KEY STATE | Mnemonic                           | Reference       |
 |-----------|------------------------------------|-----------------|
-| 0         | UNUSED                             | (This document) |
+| 0         | REQUST_AUTO_BOOTSTRAP              | (This document) |
 |-----------|------------------------------------|-----------------|
-| 1         | KEY_TRUSTED                        | (This document) |
+| 1         | REQUST_MANUAL_BOOTSTRAP            | (This document) |
 |-----------|------------------------------------|-----------------|
-| 2         | KEY_UNKNOWN                        | (This document) |
+| 2         | INQUIRY_KEY                        | (This document) |
 |-----------|------------------------------------|-----------------|
-| 3         | KEY_INVALID                        | (This document) |
+| 3         | INQUIRY_POLICY                     | (This document) |
 |-----------|------------------------------------|-----------------|
-| 4         | KEY_REFUSED                        | (This document) |
+| 4         | KEY_TRUSTED                        | (This document) |
 |-----------|------------------------------------|-----------------|
-| 5         | VALIDATION_FAIL                    | (This document) |
+| 5         | KEY_UNKNOWN                        | (This document) |
 |-----------|------------------------------------|-----------------|
-| 6         | AUTO_BOOTSTRAP_ONGOING             | (This document) |
+| 6         | KEY_INVALID                        | (This document) |
 |-----------|------------------------------------|-----------------|
-| 7         | MANUAL_BOOTSTRAP_REQUIRED          | (This document) |
+| 7         | KEY_REFUSED                        | (This document) |
 |-----------|------------------------------------|-----------------|
-| 8         | MANUAL_BOOTSTRAP_SIG0              | (This document) |
+| 8         | KEY_VALIDATION_FAIL                | (This document) |
 |-----------|------------------------------------|-----------------|
-| 9         | ATTEMPT_AUTO_BOOTSTRAP             | (This document) |
+| 9         | BOOTSTRAP_AUTO_ONGOING             | (This document) |
 |-----------|------------------------------------|-----------------|
-| 10        | REQUST_MANUAL_BOOTSTRAP            | (This document) |
+| 10        | BOOTSTRAP_MANUAL_REQUIRED          | (This document) |
 |-----------|------------------------------------|-----------------|
-| 11-127    | Unassigned                         | (This document) |
+| 11        | POLICY_MANUAL_BOOTSTRAP_REQUIRED   | (This document) |
+|-----------|------------------------------------|-----------------|
+| 12        | POLICY_AUTO_BOOTSTRAP              | (This document) |
+|-----------|------------------------------------|-----------------|
+| 13-127    | Unassigned                         | (This document) |
 |-----------|------------------------------------|-----------------|
 | 128-255   | Private use                        | (This document) |
 
