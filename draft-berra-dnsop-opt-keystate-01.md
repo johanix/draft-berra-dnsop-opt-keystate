@@ -282,8 +282,8 @@ For KeyState signalling to be used the child is set by the child to
 
 To ensure that automatic delegation is correctly prepared and
 bootstrapped, the child (or an agent for the child) sends a DNS QUERY
-to the parent UPDATE Reciever with QNAME="child.parent." and 
-QTYPE=ANY containing a KeyState OPT with KeyState-Code=1 and the KeyId of
+to the parent UPDATE Receiver with QNAME="child.parent." and
+QTYPE=ANY containing a KeyState OPT with KeyState-Code=2 and the KeyId of
 the SIG(0) key to inquire state for in the KEY-ID field.
 
 The response should be signed by the SIG(0) key for the UPDATE
@@ -331,7 +331,7 @@ assigned a value of TBD "DNS EDNS0 Option Codes (OPT)" registry
 The KeyState option also defines a 8-bit state field, for which IANA is
 requested to create and mainain a new registry entitled "KeyState Codes", used
 by the KeyState option. Initial values for the "KeyState Codes" registry
-are given below; future assignments in  in the 13-127 range are to be made
+are given below; future assignments in the 13-127 range are to be made
 through Specification Required review {{?BCP26}}.
 
 | KEY STATE | Mnemonic                           | Reference       |
