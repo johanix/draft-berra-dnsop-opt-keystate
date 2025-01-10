@@ -74,16 +74,21 @@ parent receiver getting out of sync.
 This will be noticed by the child if a DNS UPDATE is refused. In this
 situation the parent UPDATE Receiver does have the opportunity and
 ability to provide more details of the refusal via an EDE opcode
-{{!RFC8914}}. However, at that point it is too late to immediately get back
-in sync again and as a result the needed delegation synchronization
-that triggered the DNS UPDATE will be delayed until the child has
-managed to "re-bootstrap" a new SIG(0) key with the parent.
+{{!RFC8914}}. However, at that point it is too late to immediately get
+back in sync again and as a result the needed delegation
+synchronization that triggered the DNS UPDATE will be delayed until
+the child has managed to "re-bootstrap" a new SIG(0) key with the
+parent. As such re-bootstrapping may require manual actions, the
+length of the delay would not always be predictable.
 
 The proposed new KeyState EDNS(0) Option addresses this problem by
 allowing the child and parent to exchange information about the
 current "state" of a SIG(0) key. This enables the child to become
 aware of any issue with the SIG(0) key currently being used in
-advance, and then address and resolve the problem.
+advance, and then address and resolve the problem. Additionally,
+the KeyState EDNS(0) Option enables both child and parent to inform
+the other party about their policy requirements for bootstrapping
+SIG(0) keys.
 
 ## Trusting SIG(0) Signed DNS Messages Between Child and Parent 
  
@@ -151,7 +156,7 @@ purpose. But it is clear that for use cases like the above examples,
 EDE is not the right mechanism and another mechanism is needed. Hence
 the present proposal.
 
-# KeyState EDNS0 Option Format 
+# KeyState EDNS(0) Option Format 
 
 This document uses an Extended Mechanism for DNS (EDNS0) {{!RFC6891}}
 option to include Key State information in DNS messages. The option is 
@@ -194,6 +199,7 @@ KEY-ID:
 
 KEY-STATE:
     8 bits. Currently defined values are listed in Section 6 below.
+    Additional values may be defined in future documents.
 
 EXTRA-TEXT:
     a variable-length sequence of octets that may hold additional 
@@ -282,8 +288,8 @@ For KeyState signalling to be used the child is set by the child to
 
 To ensure that automatic delegation is correctly prepared and
 bootstrapped, the child (or an agent for the child) sends a DNS QUERY
-to the parent UPDATE Reciever with QNAME="child.parent." and 
-QTYPE=ANY containing a KeyState OPT with KeyState-Code=1 and the KeyId of
+to the parent UPDATE Receiver with QNAME="child.parent." and
+QTYPE=ANY containing a KeyState OPT with KeyState-Code=2 and the KeyId of
 the SIG(0) key to inquire state for in the KEY-ID field.
 
 The response should be signed by the SIG(0) key for the UPDATE
@@ -306,7 +312,7 @@ key synchronization. Otherwise, an attacker could prevent a child from
 initializing the synchronization by spoofing responses that refuses the key
 that the child is trying to upload. For that reason, it is expected that the
 parent has already published a public key that the child can use for this
-purpose. It could also possible to establish this trust out-of-band, such as
+purpose. It could also possibly establish this trust out-of-band, such as
 via a physical meeting.
 
 Lastly, SIG(0) transaction signatures are vulnerable to replay attacks, which
@@ -331,14 +337,14 @@ assigned a value of TBD "DNS EDNS0 Option Codes (OPT)" registry
 The KeyState option also defines a 8-bit state field, for which IANA is
 requested to create and mainain a new registry entitled "KeyState Codes", used
 by the KeyState option. Initial values for the "KeyState Codes" registry
-are given below; future assignments in  in the 13-127 range are to be made
+are given below; future assignments in the 13-127 range are to be made
 through Specification Required review {{?BCP26}}.
 
 | KEY STATE | Mnemonic                           | Reference       |
 |-----------|------------------------------------|-----------------|
-| 0         | REQUST_AUTO_BOOTSTRAP              | (This document) |
+| 0         | REQUEST_AUTO_BOOTSTRAP              | (This document) |
 |-----------|------------------------------------|-----------------|
-| 1         | REQUST_MANUAL_BOOTSTRAP            | (This document) |
+| 1         | REQUEST_MANUAL_BOOTSTRAP            | (This document) |
 |-----------|------------------------------------|-----------------|
 | 2         | INQUIRY_KEY                        | (This document) |
 |-----------|------------------------------------|-----------------|
