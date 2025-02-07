@@ -342,9 +342,9 @@ through Specification Required review {{?BCP26}}.
 
 | KEY STATE | Mnemonic                           | Reference       |
 |-----------|------------------------------------|-----------------|
-| 0         | REQUEST_AUTO_BOOTSTRAP              | (This document) |
+| 0         | REQUEST_AUTO_BOOTSTRAP             | (This document) |
 |-----------|------------------------------------|-----------------|
-| 1         | REQUEST_MANUAL_BOOTSTRAP            | (This document) |
+| 1         | REQUEST_MANUAL_BOOTSTRAP           | (This document) |
 |-----------|------------------------------------|-----------------|
 | 2         | INQUIRY_KEY                        | (This document) |
 |-----------|------------------------------------|-----------------|
