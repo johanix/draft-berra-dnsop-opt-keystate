@@ -1,7 +1,7 @@
 ---
 title: "Signalling Key State Via DNS EDNS(0) OPT"
 abbrev: "KeyState Signalling Via EDNS(0)"
-docname: draft-berra-dnsop-keystate-00
+docname: draft-berra-dnsop-keystate-01
 date: {DATE}
 category: std
 
