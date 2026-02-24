@@ -201,6 +201,9 @@ KEY-STATE:
     8 bits. Currently defined values are listed in Section 6 below.
     Additional values may be defined in future documents.
 
+KEY-DATA:
+    8 bits. Interpretation specific to each KEY-STATE.
+
 EXTRA-TEXT:
     a variable-length sequence of octets that may hold additional 
     information. This information is intended for human consumption
