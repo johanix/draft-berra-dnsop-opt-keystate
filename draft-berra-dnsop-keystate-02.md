@@ -1,7 +1,7 @@
 ---
 title: "Signalling Key State Via DNS EDNS(0) OPT"
 abbrev: "KeyState Signalling Via EDNS(0)"
-docname: draft-berra-dnsop-keystate-03
+docname: draft-berra-dnsop-keystate-02
 date: {DATE}
 category: std
 
@@ -367,7 +367,7 @@ through Specification Required review {{?BCP26}}.
 
 # Change History (to be removed before publication)
 
-* draft-berra-dnsop-opt-keystate-03
+* draft-berra-dnsop-opt-keystate-02
 
 > Removed policy inquiry KeyState code 3 (INQUIRY_POLICY) and policy
 > response codes 11 (POLICY_MANUAL_BOOTSTRAP_REQUIRED) and 12
@@ -381,9 +381,9 @@ through Specification Required review {{?BCP26}}.
 > Replaced hardcoded section number references with kramdown anchors
 > for stable cross-references.
 
-* draft-berra-dnsop-opt-keystate-02
-
 * draft-berra-dnsop-opt-keystate-01
+
+> Fixed minor typos.
 
 * draft-berra-dnsop-opt-keystate-00
 
