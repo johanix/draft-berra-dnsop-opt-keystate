@@ -1,7 +1,7 @@
 ---
 title: "Signalling Key State Via DNS EDNS(0) OPT"
 abbrev: "KeyState Signalling Via EDNS(0)"
-docname: draft-berra-dnsop-keystate-01
+docname: draft-berra-dnsop-keystate-03
 date: {DATE}
 category: std
 
@@ -60,7 +60,7 @@ available there.  The authors (gratefully) accept pull requests.
 
 # Introduction
 
-In {{?I-D.johani-dnsop-delegation-mgmt-via-ddns}} a mechanism for
+In {{?I-D.ietf-dnsop-delegation-mgmt-via-ddns}} a mechanism for
 automatic synchronization of delegation data between a child zone and
 a parent zone is proposed. 
 
@@ -86,9 +86,8 @@ allowing the child and parent to exchange information about the
 current "state" of a SIG(0) key. This enables the child to become
 aware of any issue with the SIG(0) key currently being used in
 advance, and then address and resolve the problem. Additionally,
-the KeyState EDNS(0) Option enables both child and parent to inform
-the other party about their policy requirements for bootstrapping
-SIG(0) keys.
+the KeyState EDNS(0) Option enables the child to detect and resolve
+key synchronization issues before they cause operational failures.
 
 ## Trusting SIG(0) Signed DNS Messages Between Child and Parent 
  
@@ -105,10 +104,10 @@ zones are DNSSEC-signed or not, this requires that the parent UPDATE
 Receiver is able to sign the response using its own SIG(0) private key.
 
 Hence there is a similar need for the UPDATE Receiver to "bootstrap"
-(as in "validate so that the key may be trusted" the child SIG(0)
+(as in "validate so that the key may be trusted") the child SIG(0)
 public key and for the child to "bootstrap" the UPDATE Receiver SIG(0)
 public key. The mechanism for doing this is described in
-{{I-D.johani-dnsop-delegation-mgmt-via-ddns}}. 
+{{I-D.ietf-dnsop-delegation-mgmt-via-ddns}}. 
 
 Knowledge of DNS NOTIFY {{!RFC1996}} and DNS Dynamic Updates
 {{!RFC2136}} and {{!RFC3007}} is assumed. DNS SIG(0) transaction
@@ -125,11 +124,11 @@ when, and only when, they appear in all capitals, as shown here.
 # Terminology 
 
 SIG(0) 
-: An assymmetric signing algorithm that allows the recipient to only 
+: An asymmetric signing algorithm that allows the recipient to only 
   need to know the public key to verify a signature created by the 
-  senders private key. 
+  sender's private key. 
 
-# Comparision to Extended DNS Errors {{!RFC8914}} 
+# Comparison to Extended DNS Errors {{!RFC8914}} 
 
 EDE (Extended DNS Errors) specify a mechanism by which a receiver of a 
 DNS message gains the ability to provide more information about the 
@@ -138,7 +137,7 @@ the response and consist of an EDE code and, optionally, an EDE "Extra
 Text". It is possible to return EDE data with all types of DNS 
 messages, including QUERY, NOTIFY and UPDATE. 
 
-However, there are three limitations to EDE that make it insufficent 
+However, there are three limitations to EDE that make it insufficient 
 for communicating state between two parties: 
 
 1. An EDE must only be present in a response, not in the originating message. 
@@ -163,18 +162,18 @@ option to include Key State information in DNS messages. The option is
 structured as follows: 
 
 ~~~
-                                               1   1   1   1   1   1 
-       0   1   2   3   4   5   6   7   8   9   0   1   2   3   4   5 
+                                               1   1   1   1   1   1
+       0   1   2   3   4   5   6   7   8   9   0   1   2   3   4   5
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
  0:  |                            OPTION-CODE                        |
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
  2:  |                           OPTION-LENGTH                       |
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
- 4:  |                               KEY-ID                          |
+ 4:  |                              KEY-ID                           |
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
- 8:  |           KEY-STATE           |    KEY-DATA                   /
-     +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+ 
- 10: / EXTRA-TEXT                                                    /
+ 6:  |           KEY-STATE           |           KEY-DATA            |
+     +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 8:  / EXTRA-TEXT                                                    /
      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 ~~~
 
@@ -187,7 +186,7 @@ OPTION-CODE:
 OPTION-LENGTH: 
     2 octets / 16 bits (defined in {{!RFC6891}}) contains the length of 
     the payload (everything after OPTION-LENGTH) in octets and should 
-    be 3 plus the length of the EXTRA-TEXT field (which may be zero 
+    be 4 plus the length of the EXTRA-TEXT field (which may be zero 
     octets long). 
 
 KEY-ID:
@@ -198,7 +197,7 @@ KEY-ID:
     responsibility to not use multiple keys with the same KeyId.
 
 KEY-STATE:
-    8 bits. Currently defined values are listed in Section 6 below.
+    8 bits. Currently defined values are listed in {{keystate-values}}.
     Additional values may be defined in future documents.
 
 KEY-DATA:
@@ -224,7 +223,7 @@ responding to a DNS message that contained a KeyState option. I.e. the
 UPDATE Receiver must never assume that the child is able to interpret
 KeyState options. A KeyState option MAY be included in any type of
 response (SERVFAIL, NXDOMAIN, REFUSED, even NOERROR, etc.) to a query
-that includes an KeyState Option.
+that includes a KeyState Option.
 
 The KeyState option may always be ignored by the recipient. However, if 
 the recipient does understand the KeyState option and responding with its 
@@ -232,24 +231,25 @@ own corresponding KeyState for the specified key make sense, then it
 is expected to do so.
 
 This document includes a set of initial "key state" codepoints but is
-extensible via the IANA registry defined and created in Section 8.2.
+extensible via the IANA registry defined and created in {{keystate-registry}}.
 
-# Defined and Reserved Values for SIG(0) Key States
+# Defined and Reserved Values for SIG(0) Key States {#keystate-values}
 
 This document defines a number of initial KEY-STATE codes. The
 mechanism is intended to be extensible and additional KEY-STATE codes
 can be registered in the "KeyState Codes" registry
-(see Section 8.2). The KEY-STATE code from the "KeyState" EDNS(0)
+(see {{keystate-registry}}). The KEY-STATE code from the "KeyState" EDNS(0)
 option is used to serve as an index into the "KeyState Option
 Codes" registry with the initial values defined below.
 
-For KeyState signalling to be used the child is set by the child to 
-   indicate ability to interpret a KeyState OPT in the response.
+For KeyState signalling to be used the child includes a KeyState OPT
+   in its query to indicate the ability to interpret a KeyState OPT in
+   the response.
 
 ## KeyStates Set By The Sender (the Child)
 
 0: Automatic bootstrap requested. This assumes that the child SIG(0)
-   public key is already published as a KEY record that the child
+   public key is already published as a KEY record at the child
    apex.
 
 1: Manual bootstrap requested. Child requests that manual bootstrap
@@ -259,9 +259,6 @@ For KeyState signalling to be used the child is set by the child to
 2: Key inquiry. Child requests information about current KeyState for
    specified key.
 
-3: Policy inquiry. Child requests information about current bootstrap
-   policy for parent (or its agent).
- 
 ## KeyStates Set By The UPDATE Receiver (the Parent or Its Agent)
 
 4: SIG(0) key is known and trusted.
@@ -279,14 +276,6 @@ For KeyState signalling to be used the child is set by the child to
    
 10: SIG(0) key is known but not trusted, manual bootstrapping required.
 
-11: Manual bootstrapping required for all SIG(0) keys to become
-    trusted. This is a policy indication in response to a KeyState=3
-    inquiry from Sender.
-
-12: Automatic bootstrapping will be attempted for all SIG(0) keys to
-    become trusted. This is a policy indication in response to a
-    KeyState=3 inquiry from Sender.
-   
 128-255: Reserved for private use.
 
 To ensure that automatic delegation is correctly prepared and
@@ -312,7 +301,7 @@ halting the delegation synchronization procedure.
 Moreover, it is assumed that the child has some means of validating messages
 from the parent during the initial phase when the child initializes the SIG(0)
 key synchronization. Otherwise, an attacker could prevent a child from
-initializing the synchronization by spoofing responses that refuses the key
+initializing the synchronization by spoofing responses that refuse the key
 that the child is trying to upload. For that reason, it is expected that the
 parent has already published a public key that the child can use for this
 purpose. It could also possibly establish this trust out-of-band, such as
@@ -322,12 +311,12 @@ Lastly, SIG(0) transaction signatures are vulnerable to replay attacks, which
 could allow an attacker to disrupt the synchronization. Secure transport
 alternatives exist in {{!RFC8094}} and {{!RFC8484}}.
 
-# IANA Considerations.
+# IANA Considerations
 
 ## New KeyState EDNS Option
 
 This document defines a new EDNS(0) option, entitled "KeyState",
-assigned a value of TBD "DNS EDNS0 Option Codes (OPT)" registry
+assigned a value of TBD in the "DNS EDNS0 Option Codes (OPT)" registry
 
 
    | Value | Name               | Status   | Reference          |
@@ -335,12 +324,12 @@ assigned a value of TBD "DNS EDNS0 Option Codes (OPT)" registry
    | TBD   | KeyState           | Standard | (This document)    |
 
 
-## A New Registry for EDNS Option KeyState State Codes
+## A New Registry for EDNS Option KeyState State Codes {#keystate-registry}
 
 The KeyState option also defines a 8-bit state field, for which IANA is
-requested to create and mainain a new registry entitled "KeyState Codes", used
+requested to create and maintain a new registry entitled "KeyState Codes", used
 by the KeyState option. Initial values for the "KeyState Codes" registry
-are given below; future assignments in the 13-127 range are to be made
+are given below; future assignments in the 11-127 range are to be made
 through Specification Required review {{?BCP26}}.
 
 | KEY STATE | Mnemonic                           | Reference       |
@@ -351,7 +340,7 @@ through Specification Required review {{?BCP26}}.
 |-----------|------------------------------------|-----------------|
 | 2         | INQUIRY_KEY                        | (This document) |
 |-----------|------------------------------------|-----------------|
-| 3         | INQUIRY_POLICY                     | (This document) |
+| 3         | Unassigned                         | (This document) |
 |-----------|------------------------------------|-----------------|
 | 4         | KEY_TRUSTED                        | (This document) |
 |-----------|------------------------------------|-----------------|
@@ -367,11 +356,7 @@ through Specification Required review {{?BCP26}}.
 |-----------|------------------------------------|-----------------|
 | 10        | BOOTSTRAP_MANUAL_REQUIRED          | (This document) |
 |-----------|------------------------------------|-----------------|
-| 11        | POLICY_MANUAL_BOOTSTRAP_REQUIRED   | (This document) |
-|-----------|------------------------------------|-----------------|
-| 12        | POLICY_AUTO_BOOTSTRAP              | (This document) |
-|-----------|------------------------------------|-----------------|
-| 13-127    | Unassigned                         | (This document) |
+| 11-127    | Unassigned                         | (This document) |
 |-----------|------------------------------------|-----------------|
 | 128-255   | Private use                        | (This document) |
 
@@ -381,6 +366,24 @@ through Specification Required review {{?BCP26}}.
 --- back
 
 # Change History (to be removed before publication)
+
+* draft-berra-dnsop-opt-keystate-03
+
+> Removed policy inquiry KeyState code 3 (INQUIRY_POLICY) and policy
+> response codes 11 (POLICY_MANUAL_BOOTSTRAP_REQUIRED) and 12
+> (POLICY_AUTO_BOOTSTRAP). Bootstrap policy discovery is now handled
+> entirely via the SVCB "bootstrap" SvcParamKey mechanism described in
+> {{I-D.ietf-dnsop-delegation-mgmt-via-ddns}}.
+
+> Fixed wire format diagram: KEY-ID is 16 bits (a standard DNSSEC Key
+> Tag), corrected byte offsets from 4/8/10 to 4/6/8.
+
+> Replaced hardcoded section number references with kramdown anchors
+> for stable cross-references.
+
+* draft-berra-dnsop-opt-keystate-02
+
+* draft-berra-dnsop-opt-keystate-01
 
 * draft-berra-dnsop-opt-keystate-00
 
