@@ -247,7 +247,7 @@ For KeyState signalling to be used the child includes a KeyState OPT
    the response.
 
 ## KeyStates Set By The Sender (the Child)
-
+Are 0 and 1 really needed? Don't we just want to check the state?
 0: Automatic bootstrap requested. This assumes that the child SIG(0)
    public key is already published as a KEY record at the child
    apex.
